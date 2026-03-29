@@ -1,0 +1,1 @@
+# Anomalias_Banco_Master
