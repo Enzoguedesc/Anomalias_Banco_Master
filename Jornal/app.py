@@ -3,6 +3,7 @@ app.py — Investigação Forense: Anomalias em FIDCs ligados ao Grupo Master
 Estilo: Jornal Investigativo Moderno (NYT / The Guardian)
 """
 
+from click import style
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -302,9 +303,16 @@ def inject_css(dark_mode: bool):
         }}
 
         /* ── ESCONDER ELEMENTOS PADRÃO ── */
-        #MainMenu, footer, header {{
-            visibility: hidden;
+       
+        #MainMenu {{ visibility: hidden; }}
+        footer {{ visibility: hidden; }}
+        header {{ background: transparent; }} /* Deixa o topo invisível mas mantém o botão funcional */
+            
+        /* Garante que o Sidebar tenha prioridade visual */
+        [data-testid="stSidebar"] {{
+            z-index: 999999;
         }}
+        
 
         /* ── FOTO / ILUSTRAÇÃO ── */
         .img-caption {{
