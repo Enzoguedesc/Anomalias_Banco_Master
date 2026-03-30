@@ -55,5 +55,7 @@ Onde $E(h(x))$ é a profundidade média para isolar o ponto e $c(n)$ é a média
 
 ---
 
+## [Link Apresentação](https://docs.google.com/presentation/d/14KjhZ_V1k8NIXkUSnl-TtNGh4ATHAPuYAFGv-bC962U/edit?slide=id.p1#slide=id.p1)  
+<br/>  
 
 > **Disclaimer:** Este projeto tem finalidade estritamente acadêmica e investigativa. Todas as análises baseiam-se em dados públicos da CVM e metodologias estatísticas reprodutíveis.
