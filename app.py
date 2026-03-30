@@ -670,154 +670,6 @@ def render_metrics(df_model: pd.DataFrame, score_threshold: float):
     st.markdown('<div class="ornament">✦ ✦ ✦</div>', unsafe_allow_html=True)
 
 
-def render_violin_chart(df_model: pd.DataFrame, grupos_sel: list, dark_mode: bool):
-    st.markdown('<div class="subsection-title">Distribuição dos Comportamentos — Quão longe cada grupo está do normal?</div>', unsafe_allow_html=True)
-    st.markdown("""
-    <div class="body-text">
-    O gráfico abaixo mostra a <em>distribuição das notas de suspeição</em> para cada grupo. 
-    Quanto mais à direita e mais "achatada" a forma, mais uniforme e preocupante o comportamento 
-    atípico. A linha vermelha tracejada é a <strong>Média de Mercado</strong> — o padrão de 
-    referência dos fundos sem vínculo com os grupos investigados.
-    </div>
-    """, unsafe_allow_html=True)
-
-    df_plot = df_model[df_model["grupo_display"].isin(grupos_sel)].copy()
-    media_mercado = df_model[df_model["grupo_economico"] == "Mercado"]["anomaly_score"].mean()
-
-    # Paleta de cores por grupo
-    color_map = {
-        "Banco Master":      "#B22222",
-        "Master (CTVB)":     "#CC3333",
-        "Trustee DTVM":      "#E07000",
-        "Reag Trust DTVM":   "#D4A000",
-        "Letsbank":          "#6A0DAD",
-        "BRB":               "#1B6CA8",
-        "Banco Pleno":       "#2E8B57",
-        "Mercado (Referência)": "#888888",
-    }
-
-    bg_color   = "rgba(17,17,17,0)" if dark_mode else "rgba(240,242,246,0)"
-    font_color = "#E8E8E8" if dark_mode else "#1A1A1A"
-    grid_color = "#333333" if dark_mode else "#E5E7EB"
-
-    fig = go.Figure()
-    for grupo in sorted(df_plot["grupo_display"].unique()):
-        sub = df_plot[df_plot["grupo_display"] == grupo]["anomaly_score"].dropna()
-        if len(sub) < 5:
-            continue
-        fig.add_trace(go.Violin(
-            x=sub,
-            name=grupo,
-            orientation="h",
-            side="positive",
-            meanline_visible=True,
-            line_color=color_map.get(grupo, "#999999"),
-            fillcolor=color_map.get(grupo, "#999999"),
-            opacity=0.75,
-            points=False,
-            box_visible=True,
-        ))
-
-    # Linha de média do mercado
-    fig.add_vline(
-        x=media_mercado,
-        line_dash="dash",
-        line_color="#B22222",
-        line_width=2,
-        annotation_text=f"Média de Mercado ({media_mercado:.2f})",
-        annotation_position="top right",
-        annotation_font_color="#B22222",
-    )
-
-    fig.update_layout(
-        title="",
-        xaxis_title="Nota de Suspeição (0 = normal · 1 = altamente atípico)",
-        yaxis_title="",
-        plot_bgcolor=bg_color,
-        paper_bgcolor=bg_color,
-        font=dict(family="Inter", color=font_color, size=12),
-        xaxis=dict(gridcolor=grid_color, zeroline=False, range=[0, 1]),
-        yaxis=dict(gridcolor=grid_color),
-        legend=dict(orientation="v", x=1.01, y=1),
-        height=420,
-        margin=dict(l=20, r=140, t=20, b=40),
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
-
-
-def render_scatter_chart(df_model: pd.DataFrame, grupos_sel: list, score_threshold: float, dark_mode: bool):
-    st.markdown('<div class="subsection-title">Mapa de Anomalias — Cada ponto é um fundo, cada mês</div>', unsafe_allow_html=True)
-    st.markdown("""
-    <div class="body-text">
-    Pontos <span style="color:#B22222;font-weight:bold;">■ vermelhos</span> representam 
-    fundos com comportamento atípico confirmado acima do limiar crítico. 
-    <span style="color:#888888;">■ Cinzas</span> são fundos dentro do padrão esperado. 
-    O eixo horizontal representa o tempo; o vertical, a nota de suspeição.
-    </div>
-    """, unsafe_allow_html=True)
-
-    df_plot = df_model[df_model["grupo_display"].isin(grupos_sel)].dropna(subset=["anomaly_score"]).copy()
-
-    bg_color   = "rgba(17,17,17,0)" if dark_mode else "rgba(240,242,246,0)"
-    font_color = "#E8E8E8" if dark_mode else "#1A1A1A"
-    grid_color = "#333333" if dark_mode else "#E5E7EB"
-
-    df_plot["cor"] = df_plot["anomaly_score"].apply(
-        lambda s: "Comportamento Atípico" if s >= score_threshold else "Dentro do Padrão"
-    )
-
-    fig = px.scatter(
-        df_plot,
-        x="DT_COMPTC",
-        y="anomaly_score",
-        color="cor",
-        color_discrete_map={
-            "Comportamento Atípico": "#B22222",
-            "Dentro do Padrão":      "#999999",
-        },
-        hover_data={
-            "DENOM_SOCIAL": True,
-            "grupo_display": True,
-            "anomaly_score": ":.3f",
-            "DT_COMPTC": True,
-            "cor": False,
-        },
-        labels={
-            "DT_COMPTC": "Competência",
-            "anomaly_score": "Nota de Suspeição",
-            "grupo_display": "Grupo",
-            "DENOM_SOCIAL": "Fundo",
-        },
-        opacity=0.65,
-        size_max=8,
-    )
-
-    fig.add_hline(
-        y=score_threshold,
-        line_dash="dot",
-        line_color="#B22222",
-        line_width=1.5,
-        annotation_text=f"Limiar crítico ({score_threshold:.2f})",
-        annotation_position="bottom right",
-        annotation_font_color="#B22222",
-    )
-
-    fig.update_traces(marker=dict(size=5))
-    fig.update_layout(
-        plot_bgcolor=bg_color,
-        paper_bgcolor=bg_color,
-        font=dict(family="Inter", color=font_color, size=12),
-        xaxis=dict(gridcolor=grid_color, zeroline=False),
-        yaxis=dict(gridcolor=grid_color, range=[-0.02, 1.02]),
-        legend=dict(title="", orientation="h", y=-0.15),
-        height=380,
-        margin=dict(l=20, r=20, t=20, b=40),
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
-
-
 # ── GRÁFICOS DO NOTEBOOK ─────────────────────────────────────────────────────
 
 def render_excesso_temporal(df_model: pd.DataFrame, dark_mode: bool):
@@ -1603,25 +1455,19 @@ def main():
     st.markdown('<hr class="section-rule">', unsafe_allow_html=True)
     st.markdown('<div class="section-title">Análise Visual — Os Dados Falam</div>', unsafe_allow_html=True)
 
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-        "📊 Distribuição por Grupo",
-        "🔴 Mapa de Anomalias",
+    tab1, tab2, tab3, tab4 = st.tabs([
         "📈 Excesso Temporal",
         "🏆 Ranking de Fundos",
         "🗺️ Mapa Forense TM×TI",
         "🎻 Violin por Grupo",
     ])
     with tab1:
-        render_violin_chart(df_display, grupos_para_exibir, dark_mode)
-    with tab2:
-        render_scatter_chart(df_display, grupos_para_exibir, score_threshold, dark_mode)
-    with tab3:
         render_excesso_temporal(df_model, dark_mode)
-    with tab4:
+    with tab2:
         render_ranking_fundos(df_model, dark_mode)
-    with tab5:
+    with tab3:
         render_mapa_forense(df_model, grupos_para_exibir, dark_mode)
-    with tab6:
+    with tab4:
         render_distribuicao_violin(df_model, dark_mode)
 
     # Tabela de evidências
