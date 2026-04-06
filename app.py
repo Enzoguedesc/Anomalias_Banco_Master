@@ -457,19 +457,6 @@ def render_sidebar(df_raw: pd.DataFrame):
             value=(datas_disponiveis[0], datas_disponiveis[-1]),
         )
 
-        # ── Sensibilidade
-        st.markdown("---")
-        sensibilidade = st.slider(
-            "🎚 Sensibilidade da Investigação",
-            min_value=0.01, max_value=0.30, value=0.05, step=0.01,
-            help="Controla quantos fundos o algoritmo considera 'atípicos'. "
-                 "Valores maiores detectam mais casos, com menor precisão.",
-        )
-        st.caption(
-            f"*{sensibilidade*100:.0f}% dos registros será classificado "
-            "como comportamento atípico pelo modelo.*"
-        )
-
         # ── Score crítico
         score_threshold = st.slider(
             "⚠️ Limiar de Score Crítico",
@@ -482,7 +469,7 @@ def render_sidebar(df_raw: pd.DataFrame):
                    "**Metodologia:** Isolation Forest  \n"
                    "**Período:** Mar–Nov 2025")
 
-    return dark_mode, grupos_sel, periodo, sensibilidade, score_threshold
+    return dark_mode, grupos_sel, periodo, score_threshold
 
 
 # ─────────────────────────────────────────────────────────────
