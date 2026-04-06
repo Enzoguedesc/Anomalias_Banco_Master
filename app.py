@@ -1277,8 +1277,8 @@ def render_evidence_table(df_model: pd.DataFrame, score_threshold: float):
 
     styled = (
         df_show.style
-        .applymap(color_score, subset=["Nota de Suspeição"])
-        .applymap(color_alerta, subset=["Alerta"])
+        .map(color_score, subset=["Nota de Suspeição"])
+        .map(color_alerta, subset=["Alerta"])
         .set_properties(**{
             "font-family": "Inter, sans-serif",
             "font-size": "13px",
