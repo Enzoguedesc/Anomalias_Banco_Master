@@ -1,2 +1,2 @@
-devcontainer
-    devcontainer.json
+.devcontainer/
+catboost_info/
