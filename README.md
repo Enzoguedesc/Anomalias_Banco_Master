@@ -69,4 +69,4 @@ O **score final** de cada fundo é a probabilidade estimada de pertencer aos gru
 
 --- 
 
-> **Disclaimer:** Este projeto tem finalidade estritamente acadêmica e investigativa. Todas as análises baseiam-se em dados públicos da CVM e metodologias estatísticas reprodutíveis.
+> **Disclaimer:** Este projeto tem finalidade estritamente acadêmica e investigativa. Todas as análises baseiam-se em dados públicos da CVM e metodologias estatísticas reprodutíveis. Não constitui recomendação de investimento
